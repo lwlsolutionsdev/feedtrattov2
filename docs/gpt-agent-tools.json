@@ -1,0 +1,241 @@
+{
+  "tools": [
+    {
+      "name": "listar_currais",
+      "description": "Lista todos os currais do usuário. Pode filtrar por nome ou linha usando o parâmetro 'search'.",
+      "method": "GET",
+      "endpoint": "/api/currais",
+      "parameters": {
+        "search": {
+          "type": "string",
+          "description": "Termo de busca para filtrar currais por nome ou linha (opcional)",
+          "required": false
+        }
+      },
+      "response": {
+        "currais": [
+          {
+            "id": "uuid",
+            "nome": "string",
+            "linha": "string | null",
+            "area_m2": "number",
+            "capacidade_animais": "number | null",
+            "created_at": "timestamp"
+          }
+        ]
+      }
+    },
+    {
+      "name": "buscar_curral",
+      "description": "Busca um curral específico pelo ID.",
+      "method": "GET",
+      "endpoint": "/api/currais/{id}",
+      "parameters": {
+        "id": {
+          "type": "string",
+          "description": "ID do curral (UUID)",
+          "required": true
+        }
+      },
+      "response": {
+        "curral": {
+          "id": "uuid",
+          "nome": "string",
+          "linha": "string | null",
+          "area_m2": "number",
+          "capacidade_animais": "number | null",
+          "created_at": "timestamp"
+        }
+      }
+    },
+    {
+      "name": "criar_curral_individual",
+      "description": "Cria um único curral com nome, linha (opcional), área em m² e capacidade de animais (opcional).",
+      "method": "POST",
+      "endpoint": "/api/currais",
+      "parameters": {
+        "tipo": {
+          "type": "string",
+          "value": "individual",
+          "required": true
+        },
+        "nome": {
+          "type": "string",
+          "description": "Nome do curral (ex: 'Curral 1')",
+          "required": true
+        },
+        "linha": {
+          "type": "string",
+          "description": "Linha do curral (A-Z, opcional)",
+          "required": false
+        },
+        "area_m2": {
+          "type": "number",
+          "description": "Área do curral em metros quadrados",
+          "required": true
+        },
+        "capacidade_animais": {
+          "type": "number",
+          "description": "Capacidade de animais (opcional)",
+          "required": false
+        }
+      },
+      "response": {
+        "message": "string",
+        "curral": {
+          "id": "uuid",
+          "nome": "string",
+          "linha": "string | null",
+          "area_m2": "number",
+          "capacidade_animais": "number | null"
+        }
+      }
+    },
+    {
+      "name": "criar_currais_em_lote",
+      "description": "Cria múltiplos currais de uma vez com o mesmo tamanho e linha. Útil para criar vários currais numerados (ex: Curral 1, Curral 2, Curral 3...).",
+      "method": "POST",
+      "endpoint": "/api/currais",
+      "parameters": {
+        "tipo": {
+          "type": "string",
+          "value": "lote",
+          "required": true
+        },
+        "prefixo": {
+          "type": "string",
+          "description": "Prefixo para os nomes (ex: 'Curral')",
+          "required": true
+        },
+        "quantidade": {
+          "type": "number",
+          "description": "Quantidade de currais a criar (1-100)",
+          "required": true
+        },
+        "linha": {
+          "type": "string",
+          "description": "Linha dos currais (A-Z, opcional)",
+          "required": false
+        },
+        "area_m2": {
+          "type": "number",
+          "description": "Área de cada curral em metros quadrados",
+          "required": true
+        },
+        "capacidade_animais": {
+          "type": "number",
+          "description": "Capacidade de animais de cada curral (opcional)",
+          "required": false
+        }
+      },
+      "response": {
+        "message": "string",
+        "currais": [
+          {
+            "id": "uuid",
+            "nome": "string",
+            "linha": "string | null",
+            "area_m2": "number",
+            "capacidade_animais": "number | null"
+          }
+        ]
+      }
+    },
+    {
+      "name": "atualizar_curral",
+      "description": "Atualiza os dados de um curral existente.",
+      "method": "PATCH",
+      "endpoint": "/api/currais/{id}",
+      "parameters": {
+        "id": {
+          "type": "string",
+          "description": "ID do curral (UUID)",
+          "required": true
+        },
+        "nome": {
+          "type": "string",
+          "description": "Novo nome do curral (opcional)",
+          "required": false
+        },
+        "linha": {
+          "type": "string",
+          "description": "Nova linha do curral (A-Z, opcional)",
+          "required": false
+        },
+        "area_m2": {
+          "type": "number",
+          "description": "Nova área em metros quadrados (opcional)",
+          "required": false
+        },
+        "capacidade_animais": {
+          "type": "number",
+          "description": "Nova capacidade de animais (opcional)",
+          "required": false
+        }
+      },
+      "response": {
+        "message": "string",
+        "curral": {
+          "id": "uuid",
+          "nome": "string",
+          "linha": "string | null",
+          "area_m2": "number",
+          "capacidade_animais": "number | null"
+        }
+      }
+    },
+    {
+      "name": "excluir_curral",
+      "description": "Exclui um curral permanentemente. Esta ação não pode ser desfeita.",
+      "method": "DELETE",
+      "endpoint": "/api/currais/{id}",
+      "parameters": {
+        "id": {
+          "type": "string",
+          "description": "ID do curral (UUID)",
+          "required": true
+        }
+      },
+      "response": {
+        "message": "string"
+      }
+    }
+  ],
+  "examples": [
+    {
+      "user": "Crie um curral chamado 'Curral A1' com 1000m² e capacidade para 50 animais na linha A",
+      "tool": "criar_curral_individual",
+      "params": {
+        "tipo": "individual",
+        "nome": "Curral A1",
+        "linha": "A",
+        "area_m2": 1000,
+        "capacidade_animais": 50
+      }
+    },
+    {
+      "user": "Crie 30 currais na linha B, cada um com 800m² e capacidade para 40 animais",
+      "tool": "criar_currais_em_lote",
+      "params": {
+        "tipo": "lote",
+        "prefixo": "Curral",
+        "quantidade": 30,
+        "linha": "B",
+        "area_m2": 800,
+        "capacidade_animais": 40
+      }
+    },
+    {
+      "user": "Liste todos os meus currais",
+      "tool": "listar_currais",
+      "params": {}
+    },
+    {
+      "user": "Mostre os currais da linha A",
+      "tool": "listar_currais",
+      "params": {
+        "search": "A"
+      }
+    }
+  ]
+}
