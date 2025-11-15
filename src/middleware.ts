@@ -138,17 +138,27 @@ export async function middleware(request: NextRequest) {
   // ============================================
   // Qualquer outro subdomínio é considerado cliente
   if (subdomain && subdomain !== 'www') {
-    // Por enquanto, apenas permitir acesso (sem verificações)
-    // TODO: Adicionar verificações de empresa e cliente depois
+    // Verificar se está logado
+    if (!session && !request.nextUrl.pathname.startsWith('/login') && !request.nextUrl.pathname.startsWith('/cadastro') && !request.nextUrl.pathname.startsWith('/signup')) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('subdomain', subdomain);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Se está logado, permitir acesso
     return NextResponse.next();
   }
 
   // ============================================
-  // DEFAULT: Redirecionar para portal
+  // DEFAULT: Sem subdomínio - redirecionar para login
   // ============================================
-  const portalUrl = new URL(request.url);
-  portalUrl.searchParams.set('subdomain', 'portal');
-  return NextResponse.redirect(portalUrl);
+  if (!session && !request.nextUrl.pathname.startsWith('/login') && !request.nextUrl.pathname.startsWith('/cadastro') && !request.nextUrl.pathname.startsWith('/signup')) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('subdomain', 'app');
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
