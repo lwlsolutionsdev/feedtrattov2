@@ -272,6 +272,7 @@ export async function POST(request: Request) {
     const toolResults: OpenAI.Chat.ChatCompletionMessageParam[] = []
 
     for (const toolCall of toolCalls) {
+      if (toolCall.type !== 'function') continue
       const { name, arguments: argsJson } = toolCall.function
       const args = JSON.parse(argsJson || "{}")
 
