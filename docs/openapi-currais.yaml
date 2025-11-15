@@ -1,0 +1,413 @@
+openapi: 3.1.0
+info:
+  title: FeedTratto - API de Currais
+  description: API para gerenciar currais de confinamento de gado
+  version: 1.0.0
+
+servers:
+  - url: https://feedtrattov2.vercel.app
+    description: Servidor de produção
+
+paths:
+  /api/currais:
+    get:
+      operationId: listarCurrais
+      summary: Lista todos os currais do usuário
+      description: Retorna todos os currais cadastrados pelo usuário autenticado. Pode filtrar por nome ou linha.
+      parameters:
+        - name: search
+          in: query
+          description: Termo de busca para filtrar por nome ou linha
+          required: false
+          schema:
+            type: string
+            example: "A"
+      responses:
+        '200':
+          description: Lista de currais
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currais:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Curral'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      operationId: criarCurral
+      summary: Cria um ou mais currais
+      description: Cria um curral individual ou múltiplos currais em lote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/CriarCurralIndividual'
+                - $ref: '#/components/schemas/CriarCurraisLote'
+            examples:
+              individual:
+                summary: Criar curral individual
+                value:
+                  tipo: "individual"
+                  nome: "Curral A1"
+                  linha: "A"
+                  area_m2: 1000
+                  capacidade_animais: 50
+              lote:
+                summary: Criar currais em lote
+                value:
+                  tipo: "lote"
+                  prefixo: "Curral"
+                  quantidade: 30
+                  linha: "B"
+                  area_m2: 800
+                  capacidade_animais: 40
+      responses:
+        '200':
+          description: Curral(is) criado(s) com sucesso
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/CurralCriadoIndividual'
+                  - $ref: '#/components/schemas/CurraisCriadosLote'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Cliente não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/currais/{id}:
+    get:
+      operationId: buscarCurral
+      summary: Busca um curral específico por ID
+      description: Retorna os detalhes de um curral específico do usuário autenticado
+      parameters:
+        - name: id
+          in: path
+          description: ID do curral (UUID)
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Curral encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  curral:
+                    $ref: '#/components/schemas/Curral'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    patch:
+      operationId: atualizarCurral
+      summary: Atualiza um curral existente
+      description: Atualiza os dados de um curral do usuário autenticado. Apenas os campos fornecidos serão atualizados.
+      parameters:
+        - name: id
+          in: path
+          description: ID do curral (UUID)
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AtualizarCurral'
+            examples:
+              atualizar_nome:
+                summary: Atualizar apenas o nome
+                value:
+                  nome: "Curral A1 - Reformado"
+              atualizar_capacidade:
+                summary: Atualizar capacidade
+                value:
+                  capacidade_animais: 60
+              atualizar_completo:
+                summary: Atualizar múltiplos campos
+                value:
+                  nome: "Curral Premium"
+                  linha: "C"
+                  area_m2: 1200
+                  capacidade_animais: 70
+      responses:
+        '200':
+          description: Curral atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Curral atualizado com sucesso!"
+                  curral:
+                    $ref: '#/components/schemas/Curral'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      operationId: excluirCurral
+      summary: Exclui um curral
+      description: Exclui permanentemente um curral do usuário autenticado. Esta ação não pode ser desfeita.
+      parameters:
+        - name: id
+          in: path
+          description: ID do curral (UUID)
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Curral excluído com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Curral excluído com sucesso!"
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Curral:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único do curral
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        nome:
+          type: string
+          description: Nome do curral
+          example: "Curral A1"
+        linha:
+          type: string
+          nullable: true
+          description: Linha do curral (A-Z)
+          example: "A"
+        area_m2:
+          type: number
+          format: float
+          description: Área do curral em metros quadrados
+          example: 1000.0
+        capacidade_animais:
+          type: integer
+          nullable: true
+          description: Capacidade de animais (cabeças)
+          example: 50
+        cliente_id:
+          type: string
+          format: uuid
+          description: ID do cliente proprietário
+        empresa_id:
+          type: string
+          format: uuid
+          description: ID da empresa
+        created_at:
+          type: string
+          format: date-time
+          description: Data de criação
+        updated_at:
+          type: string
+          format: date-time
+          description: Data da última atualização
+
+    CriarCurralIndividual:
+      type: object
+      required:
+        - tipo
+        - nome
+        - area_m2
+      properties:
+        tipo:
+          type: string
+          enum: ["individual"]
+          description: Tipo de criação
+          example: "individual"
+        nome:
+          type: string
+          description: Nome do curral
+          example: "Curral A1"
+        linha:
+          type: string
+          description: Linha do curral (A-Z, opcional)
+          example: "A"
+        area_m2:
+          type: number
+          format: float
+          description: Área em metros quadrados
+          example: 1000.0
+        capacidade_animais:
+          type: integer
+          description: Capacidade de animais (opcional)
+          example: 50
+
+    CriarCurraisLote:
+      type: object
+      required:
+        - tipo
+        - prefixo
+        - quantidade
+        - area_m2
+      properties:
+        tipo:
+          type: string
+          enum: ["lote"]
+          description: Tipo de criação
+          example: "lote"
+        prefixo:
+          type: string
+          description: Prefixo para os nomes dos currais
+          example: "Curral"
+        quantidade:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Quantidade de currais a criar
+          example: 30
+        linha:
+          type: string
+          description: Linha dos currais (A-Z, opcional)
+          example: "B"
+        area_m2:
+          type: number
+          format: float
+          description: Área de cada curral em metros quadrados
+          example: 800.0
+        capacidade_animais:
+          type: integer
+          description: Capacidade de animais de cada curral (opcional)
+          example: 40
+
+    AtualizarCurral:
+      type: object
+      properties:
+        nome:
+          type: string
+          description: Novo nome do curral
+          example: "Curral A1 - Reformado"
+        linha:
+          type: string
+          description: Nova linha do curral
+          example: "C"
+        area_m2:
+          type: number
+          format: float
+          description: Nova área em metros quadrados
+          example: 1200.0
+        capacidade_animais:
+          type: integer
+          description: Nova capacidade de animais
+          example: 60
+
+    CurralCriadoIndividual:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Curral criado com sucesso!"
+        curral:
+          $ref: '#/components/schemas/Curral'
+
+    CurraisCriadosLote:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "30 currais criados com sucesso!"
+        currais:
+          type: array
+          items:
+            $ref: '#/components/schemas/Curral'
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensagem de erro
+          example: "Não autenticado"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token de autenticação do Supabase
+
+security:
+  - BearerAuth: []

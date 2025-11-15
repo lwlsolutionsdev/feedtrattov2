@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useEffect, useState } from "react"
 import {
   AudioWaveform,
   BookOpen,
@@ -14,9 +15,20 @@ import {
   SquareTerminal,
   Sparkles,
   Warehouse,
+  Utensils,
+  Package,
+  PackagePlus,
+  PackageMinus,
+  Blend,
+  UtensilsCrossed,
+  Soup,
+  Users,
+  ClipboardList,
+  Beef,
 } from "lucide-react"
 
 import { NavSimple } from "@/components/nav-simple"
+import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
@@ -27,12 +39,13 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { createClient } from "@/lib/supabase/client"
 
 // This is sample data.
-const data = {
+const defaultData = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "Carregando...",
+    email: "carregando@feedtratto.com",
     avatar: "/avatars/shadcn.jpg",
   },
   teams: [
@@ -64,6 +77,84 @@ const data = {
       url: "/currais",
       icon: Warehouse,
     },
+    {
+      title: "Lotes",
+      url: "/lotes",
+      icon: Users,
+    },
+    {
+      title: "Animais",
+      url: "#",
+      icon: Beef,
+      items: [
+        {
+          title: "Não Processados",
+          url: "/animais-nao-processados",
+        },
+        {
+          title: "Raças",
+          url: "/racas",
+        },
+        {
+          title: "Categorias",
+          url: "/categorias",
+        },
+      ],
+    },
+    {
+      title: "Leitura de Cocho",
+      url: "#",
+      icon: ClipboardList,
+      items: [
+        {
+          title: "Leitura Noturna",
+          url: "/leitura-cocho/noturna",
+        },
+        {
+          title: "Leitura Diurna",
+          url: "/leitura-cocho/diurna",
+        },
+        {
+          title: "Histórico",
+          url: "/leitura-cocho/historico",
+        },
+      ],
+    },
+    {
+      title: "Alimentação",
+      url: "#",
+      icon: Utensils,
+      items: [
+        {
+          title: "Insumos",
+          url: "/insumos",
+        },
+        {
+          title: "Entradas",
+          url: "/entradas-estoque",
+        },
+        {
+          title: "Saídas",
+          url: "/saidas-estoque",
+        },
+        {
+          title: "Pré-Misturas",
+          url: "/pre-misturas",
+        },
+        {
+          title: "Dietas",
+          url: "/dietas",
+        },
+        {
+          title: "Batidas",
+          url: "/batidas",
+        },
+        {
+          title: "Unidades de Medida",
+          url: "/unidades-medida",
+        },
+      ],
+    },
   ],
   projects: [
     {
@@ -85,17 +176,44 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [userData, setUserData] = useState(defaultData.user)
+
+  useEffect(() => {
+    async function loadUser() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        // Buscar dados do cliente
+        const { data: cliente } = await supabase
+          .from('clientes')
+          .select('nome')
+          .eq('id', user.id)
+          .single()
+
+        setUserData({
+          name: cliente?.nome || user.email?.split('@')[0] || 'Usuário',
+          email: user.email || 'sem-email@feedtratto.com',
+          avatar: user.user_metadata?.avatar_url || "/avatars/shadcn.jpg",
+        })
+      }
+    }
+
+    loadUser()
+  }, [])
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher teams={defaultData.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavSimple items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavSimple items={defaultData.navMain.filter(item => !item.items)} />
+        <NavMain items={defaultData.navMain.filter(item => item.items)} />
+        <NavProjects projects={defaultData.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
