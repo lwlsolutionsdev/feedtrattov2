@@ -4,9 +4,10 @@ import { NextResponse } from 'next/server'
 // GET - Buscar curral por ID
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     
@@ -17,7 +18,7 @@ export async function GET(
     const { data, error } = await supabase
       .from('currais')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('cliente_id', user.id)
       .single()
 
@@ -32,9 +33,10 @@ export async function GET(
 // PATCH - Atualizar curral
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     
@@ -56,7 +58,7 @@ export async function PATCH(
     const { data, error } = await supabase
       .from('currais')
       .update(updateData)
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('cliente_id', user.id)
       .select()
       .single()
@@ -75,9 +77,10 @@ export async function PATCH(
 // DELETE - Excluir curral
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     
@@ -88,7 +91,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('currais')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('cliente_id', user.id)
 
     if (error) throw error
