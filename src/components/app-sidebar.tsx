@@ -25,6 +25,7 @@ import {
   Users,
   ClipboardList,
   Beef,
+  Scale,
 } from "lucide-react"
 
 import { NavSimple } from "@/components/nav-simple"
@@ -88,6 +89,26 @@ const defaultData = {
       icon: Beef,
       items: [
         {
+          title: "Individuais",
+          url: "/animais",
+        },
+        {
+          title: "Entrada em Lote",
+          url: "/animais/lote",
+        },
+        {
+          title: "⚡ Modo Curral",
+          url: "/animais/modo-curral",
+        },
+        {
+          title: "Movimentações",
+          url: "/movimentacoes",
+        },
+        {
+          title: "Movimentação em Lote",
+          url: "/movimentacoes/lote",
+        },
+        {
           title: "Não Processados",
           url: "/animais-nao-processados",
         },
@@ -98,6 +119,25 @@ const defaultData = {
         {
           title: "Categorias",
           url: "/categorias",
+        },
+      ],
+    },
+    {
+      title: "Pesagens",
+      url: "#",
+      icon: Scale,
+      items: [
+        {
+          title: "Lista de Pesagens",
+          url: "/pesagens",
+        },
+        {
+          title: "Pesagem em Lote",
+          url: "/pesagens/lote",
+        },
+        {
+          title: "⚡ Modo Curral",
+          url: "/pesagens/modo-curral",
         },
       ],
     },

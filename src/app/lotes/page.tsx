@@ -88,6 +88,11 @@ interface Lote {
   created_at: string
   updated_at: string
   curral?: { nome: string }
+  total_animais_individuais?: number
+  total_animais_lote?: number
+  total_animais?: number
+  capacidade_disponivel?: number
+  percentual_ocupacao?: number
 }
 
 interface Curral {
@@ -150,10 +155,10 @@ export default function LotesPage() {
     try {
       setLoading(true)
       const { data, error } = await supabase
-        .from('lotes')
+        .from('lotes_com_totais')
         .select(`
           *,
-          curral:currais(nome)
+          curral:curral_id(nome)
         `)
         .order('created_at', { ascending: false })
 
@@ -353,7 +358,7 @@ export default function LotesPage() {
   })
 
   const lotesAtivos = lotes.filter(l => l.status === 'ATIVO').length
-  const totalAnimais = lotes.filter(l => l.status === 'ATIVO').reduce((sum, l) => sum + l.quantidade_animais, 0)
+  const totalAnimais = lotes.filter(l => l.status === 'ATIVO').reduce((sum, l) => sum + (l.total_animais || 0), 0)
 
   return (
     <SidebarProvider>
@@ -748,7 +753,16 @@ export default function LotesPage() {
                     <TableRow key={lote.id}>
                       <TableCell className="font-medium">{lote.nome}</TableCell>
                       <TableCell>{lote.curral?.nome || '-'}</TableCell>
-                      <TableCell>{lote.quantidade_animais}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <span className="font-semibold">{lote.total_animais || 0}</span>
+                          {(lote.total_animais_individuais || 0) > 0 && (lote.total_animais_lote || 0) > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                              {lote.total_animais_individuais} ind. + {lote.total_animais_lote} lote
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>{new Date(lote.data_entrada).toLocaleDateString('pt-BR')}</TableCell>
                       <TableCell>{lote.dias_planejados}</TableCell>
                       <TableCell>
