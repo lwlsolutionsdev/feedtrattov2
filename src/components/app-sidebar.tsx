@@ -26,6 +26,8 @@ import {
   ClipboardList,
   Beef,
   Scale,
+  Calendar,
+  ChefHat,
 } from "lucide-react"
 
 import { NavSimple } from "@/components/nav-simple"
@@ -147,6 +149,10 @@ const defaultData = {
       icon: ClipboardList,
       items: [
         {
+          title: "Leitura Simples",
+          url: "/leitura-cocho/simples",
+        },
+        {
           title: "Leitura Noturna",
           url: "/leitura-cocho/noturna",
         },
@@ -157,6 +163,21 @@ const defaultData = {
         {
           title: "Histórico",
           url: "/leitura-cocho/historico",
+        },
+      ],
+    },
+    {
+      title: "Planejamento",
+      url: "#",
+      icon: Calendar,
+      items: [
+        {
+          title: "Planejamento Nutricional",
+          url: "/planejamento-nutricional",
+        },
+        {
+          title: "Guia de Trato",
+          url: "/guia-trato",
         },
       ],
     },
@@ -184,6 +205,10 @@ const defaultData = {
         {
           title: "Dietas",
           url: "/dietas",
+        },
+        {
+          title: "Vagões",
+          url: "/vagoes",
         },
         {
           title: "Batidas",

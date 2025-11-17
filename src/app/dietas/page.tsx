@@ -78,6 +78,7 @@ export default function DietasPage() {
   // Form state
   const [nome, setNome] = useState('')
   const [descricao, setDescricao] = useState('')
+  const [faseDieta, setFaseDieta] = useState<string>('')
   const [ativo, setAtivo] = useState(true)
   const [ingredientes, setIngredientes] = useState<Ingrediente[]>([
     { tipo: 'insumo', percentual_mistura: 0, percentual_ms: 0, valor_unitario_kg: 0 }
@@ -139,6 +140,11 @@ export default function DietasPage() {
       return
     }
 
+    if (!faseDieta) {
+      toast.error('Selecione a fase da dieta')
+      return
+    }
+
     const validIngredientes = ingredientes.filter(i => 
       (i.tipo === 'insumo' && i.insumo_id) || (i.tipo === 'pre_mistura' && i.pre_mistura_id)
     )
@@ -169,6 +175,7 @@ export default function DietasPage() {
         body: JSON.stringify({
           nome,
           descricao: descricao || null,
+          fase_dieta: faseDieta,
           ativo,
           ingredientes: validIngredientes,
         }),
@@ -224,6 +231,7 @@ export default function DietasPage() {
       setEditingDieta(data.dieta)
       setNome(data.dieta.nome)
       setDescricao(data.dieta.descricao || '')
+      setFaseDieta(data.dieta.fase_dieta || '')
       setAtivo(data.dieta.ativo)
       setIngredientes(data.dieta.ingredientes.map((ing: any) => ({
         tipo: ing.tipo,
@@ -256,6 +264,7 @@ export default function DietasPage() {
   const resetForm = () => {
     setNome('')
     setDescricao('')
+    setFaseDieta('')
     setAtivo(true)
     setIngredientes([{ tipo: 'insumo', percentual_mistura: 0, percentual_ms: 0, valor_unitario_kg: 0 }])
     setEditingDieta(null)
@@ -344,12 +353,13 @@ export default function DietasPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[30%]">Nome</TableHead>
-                    <TableHead className="w-[15%] text-center">Ingredientes</TableHead>
-                    <TableHead className="w-[15%] text-right">% MS Total</TableHead>
-                    <TableHead className="w-[15%] text-right">Custo/kg</TableHead>
+                    <TableHead className="w-[25%]">Nome</TableHead>
+                    <TableHead className="w-[15%] text-center">Fase</TableHead>
+                    <TableHead className="w-[12%] text-center">Ingredientes</TableHead>
+                    <TableHead className="w-[12%] text-right">% MS Total</TableHead>
+                    <TableHead className="w-[12%] text-right">Custo/kg</TableHead>
                     <TableHead className="w-[10%] text-center">Ativo</TableHead>
-                    <TableHead className="w-[15%] text-right">Ações</TableHead>
+                    <TableHead className="w-[14%] text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -357,6 +367,7 @@ export default function DietasPage() {
                     Array.from({ length: 5 }).map((_, i) => (
                       <TableRow key={i}>
                         <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                         <TableCell><Skeleton className="h-4 w-12" /></TableCell>
                         <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                         <TableCell><Skeleton className="h-4 w-20" /></TableCell>
@@ -366,7 +377,7 @@ export default function DietasPage() {
                     ))
                   ) : filteredDietas.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="h-24 text-center">
+                      <TableCell colSpan={7} className="h-24 text-center">
                         <Empty>
                           <EmptyHeader>
                             <UtensilsCrossed className="h-12 w-12" />
@@ -384,6 +395,11 @@ export default function DietasPage() {
                     filteredDietas.map((dieta) => (
                       <TableRow key={dieta.id}>
                         <TableCell className="font-medium">{dieta.nome}</TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant="outline" className="text-xs">
+                            {dieta.fase_dieta === 'adaptacao_crescimento' ? 'Adaptação' : 'Terminação'}
+                          </Badge>
+                        </TableCell>
                         <TableCell className="text-center">
                           <Badge variant="outline">{dieta.total_ingredientes}</Badge>
                         </TableCell>
@@ -466,6 +482,19 @@ export default function DietasPage() {
                     placeholder="Informações adicionais..."
                     rows={2}
                   />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="fase_dieta">Fase da Dieta *</Label>
+                  <Select value={faseDieta} onValueChange={setFaseDieta} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a fase" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="adaptacao_crescimento">Adaptação/Crescimento</SelectItem>
+                      <SelectItem value="terminacao">Terminação</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -647,6 +676,15 @@ export default function DietasPage() {
                     <p className="text-sm">{viewingDieta.descricao}</p>
                   </div>
                 )}
+
+                <div>
+                  <Label className="text-sm text-muted-foreground">Fase da Dieta</Label>
+                  <div className="mt-1">
+                    <Badge variant="outline">
+                      {viewingDieta.fase_dieta === 'adaptacao_crescimento' ? 'Adaptação/Crescimento' : 'Terminação'}
+                    </Badge>
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-3 gap-4">
                   <div>

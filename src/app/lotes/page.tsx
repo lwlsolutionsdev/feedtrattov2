@@ -78,6 +78,7 @@ interface Lote {
   peso_medio_entrada: number | null
   gmd_projetado: number | null
   peso_medio_saida_projetado: number | null
+  valor_compra_kg_projetado: number | null
   custo_fixo_cabeca_dia_projetado: number | null
   custo_protocolo_sanitario_projetado: number | null
   rendimento_carcaca_projetado: number | null
@@ -271,7 +272,7 @@ export default function LotesPage() {
       quantidade_animais: lote.quantidade_animais.toString(),
       peso_medio_entrada: lote.peso_medio_entrada?.toString() || '',
       gmd_projetado: lote.gmd_projetado?.toString() || '',
-      valor_compra_kg_projetado: (lote as any).valor_compra_kg_projetado?.toString() || '',
+      valor_compra_kg_projetado: lote.valor_compra_kg_projetado?.toString() || '',
       custo_fixo_cabeca_dia_projetado: lote.custo_fixo_cabeca_dia_projetado?.toString() || '',
       custo_protocolo_sanitario_projetado: lote.custo_protocolo_sanitario_projetado?.toString() || '',
       rendimento_carcaca_projetado: lote.rendimento_carcaca_projetado?.toString() || '',

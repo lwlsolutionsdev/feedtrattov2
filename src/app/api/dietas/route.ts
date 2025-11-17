@@ -79,9 +79,23 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { nome, descricao, ativo, ingredientes } = body
+    const { nome, descricao, fase_dieta, ativo, ingredientes } = body
 
-    if (!nome || !ingredientes || ingredientes.length === 0) {
+    if (!nome) {
+      return NextResponse.json(
+        { error: 'Nome da dieta é obrigatório' },
+        { status: 400 }
+      )
+    }
+
+    if (!fase_dieta) {
+      return NextResponse.json(
+        { error: 'Fase da dieta é obrigatória' },
+        { status: 400 }
+      )
+    }
+
+    if (!ingredientes || ingredientes.length === 0) {
       return NextResponse.json(
         { error: 'Dieta deve ter pelo menos 1 ingrediente' },
         { status: 400 }
@@ -121,6 +135,7 @@ export async function POST(request: Request) {
       .insert({
         nome,
         descricao: descricao || null,
+        fase_dieta,
         ativo: ativo !== undefined ? ativo : true,
         cliente_id: user.id,
         empresa_id: profile?.empresa_id || null,

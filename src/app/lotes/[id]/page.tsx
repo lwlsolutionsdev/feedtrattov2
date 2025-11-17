@@ -549,13 +549,22 @@ export default function DetalhesLotePage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <Link href={`/lotes/${lote.id}/animais`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    Ver Animais ({lote.quantidade_animais})
+                  </Button>
+                </Link>
                 <Button
                   onClick={openPeriodosDialog}
                   className="bg-orange-500 hover:bg-orange-600 text-white"
                   size="sm"
                 >
                   <Utensils className="h-4 w-4 mr-2" />
-                  {hasPeriodosSalvos ? 'Editar Períodos de Alimentação' : 'Períodos de Alimentação'}
+                  {hasPeriodosSalvos ? 'Editar Períodos' : 'Períodos'}
                 </Button>
                 <Badge variant={lote.status === 'ATIVO' ? 'default' : 'secondary'}>
                   {lote.status}

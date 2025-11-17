@@ -72,7 +72,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { nome, descricao, ativo, ingredientes } = body
+    const { nome, descricao, fase_dieta, ativo, ingredientes } = body
 
     if (ingredientes) {
       const totalPercentual = ingredientes.reduce((sum: number, ing: any) => 
@@ -86,8 +86,15 @@ export async function PUT(
       }
     }
 
+    if (!fase_dieta) {
+      return NextResponse.json(
+        { error: 'Fase da dieta é obrigatória' },
+        { status: 400 }
+      )
+    }
+
     // Calcular MS média e custos se ingredientes foram fornecidos
-    let updateData: any = { nome, descricao, ativo }
+    let updateData: any = { nome, descricao, fase_dieta, ativo }
     
     if (ingredientes) {
       const ms_media = ingredientes.reduce((sum: number, ing: any) => 
