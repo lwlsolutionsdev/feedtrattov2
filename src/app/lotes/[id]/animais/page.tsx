@@ -107,7 +107,15 @@ export default function LoteAnimaisPage() {
         .order('brinco_visual')
 
       if (individuaisError) throw individuaisError
-      setAnimaisIndividuais(individuais || [])
+      
+      // Transformar dados para o formato correto
+      const individuaisFormatados = (individuais || []).map((animal: any) => ({
+        ...animal,
+        racas: Array.isArray(animal.racas) ? animal.racas[0] : animal.racas,
+        categorias: Array.isArray(animal.categorias) ? animal.categorias[0] : animal.categorias
+      }))
+      
+      setAnimaisIndividuais(individuaisFormatados)
 
       // Buscar lotes de animais (entrada em lote)
       const { data: lotes, error: lotesError } = await supabase
@@ -127,7 +135,15 @@ export default function LoteAnimaisPage() {
         .order('data_entrada', { ascending: false })
 
       if (lotesError) throw lotesError
-      setLotesAnimais(lotes || [])
+      
+      // Transformar dados para o formato correto
+      const lotesFormatados = (lotes || []).map((lote: any) => ({
+        ...lote,
+        racas: Array.isArray(lote.racas) ? lote.racas[0] : lote.racas,
+        categorias: Array.isArray(lote.categorias) ? lote.categorias[0] : lote.categorias
+      }))
+      
+      setLotesAnimais(lotesFormatados)
 
     } catch (error: any) {
       console.error('Erro ao buscar dados:', error)
